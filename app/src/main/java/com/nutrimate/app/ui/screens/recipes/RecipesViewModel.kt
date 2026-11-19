@@ -33,6 +33,11 @@ class RecipesViewModel : ViewModel() {
         initialValue = RecipeRepository.recipes
     )
 
+    val categories = listOf("All") +
+            RecipeRepository.recipes
+                .map { recipe -> recipe.category}
+                .distinct()
+
     fun onSearchQueryChange(query: String) {
         _searchQuery.value = query
     }

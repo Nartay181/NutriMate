@@ -32,12 +32,7 @@ fun RecipesScreen(
     val searchQuery by recipesViewModel.searchQuery.collectAsState()
     val selectedCategory by recipesViewModel.selectedCategory.collectAsState()
     val filteredRecipes by recipesViewModel.filteredRecipes.collectAsState()
-    val categories = listOf(
-        "All",
-        "Breakfast",
-        "Main Course",
-        "Salad"
-    )
+    val categories = recipesViewModel.categories
     Column(modifier = modifier) {
         OutlinedTextField(
             value = searchQuery,
