@@ -38,12 +38,20 @@ fun AppNavGraph() {
         }
         composable(
             route = AppRoutes.RECIPE_DETAILS,
-            arguments = listOf(navArgument("recipeId") { type = NavType.StringType })
+            arguments = listOf(navArgument("recipeId") { type = NavType.IntType })
         ) { backStackEntry ->
-            RecipeDetailsScreen(
-                recipeId = backStackEntry.arguments?.getString("recipeId").orEmpty(),
-                onBack = { navController.popBackStack() }
-            )
+            val recipeId = backStackEntry.arguments
+                ?.takeIf { it.containsKey("recipeId") }
+                ?.getInt("recipeId")
+
+            if (recipeId == null || recipeId <= 0) {
+                navController.popBackStack()
+            } else {
+                RecipeDetailsScreen(
+                    recipeId = recipeId,
+                    onBack = { navController.popBackStack() }
+                )
+            }
         }
     }
 }
