@@ -22,7 +22,10 @@ fun AppNavGraph() {
         composable(AppRoutes.HOME) {
             HomeScreen(
                 onOpenRecipes = { navController.navigate(AppRoutes.RECIPES) },
-                onOpenFavorites = { navController.navigate(AppRoutes.FAVORITES) }
+                onOpenFavorites = { navController.navigate(AppRoutes.FAVORITES) },
+                onOpenRecipe = { recipeId ->
+                    navController.navigate(AppRoutes.recipeDetails(recipeId))
+                }
             )
         }
         composable(AppRoutes.RECIPES) {

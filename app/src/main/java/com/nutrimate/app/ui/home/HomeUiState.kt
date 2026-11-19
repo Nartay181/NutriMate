@@ -1,7 +1,9 @@
 package com.nutrimate.app.ui.home
 
+import com.nutrimate.app.data.model.Recipe
+
 data class HomeUiState(
     val welcomeMessage: String = "Welcome to NutriMate",
-    val featuredRecipeIds: List<Int> = emptyList(),
+    val featuredRecipes: List<Recipe> = emptyList(),
     val isLoading: Boolean = false
 )
