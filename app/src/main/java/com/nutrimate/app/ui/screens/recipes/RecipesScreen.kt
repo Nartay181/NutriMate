@@ -13,13 +13,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.nutrimate.app.data.repository.RecipeRepository
 import com.nutrimate.app.ui.components.RecipeCard
 import com.nutrimate.app.ui.theme.NutriMateTheme
@@ -27,25 +26,22 @@ import com.nutrimate.app.ui.theme.NutriMateTheme
 @Composable
 fun RecipesScreen(
     onRecipeClick: (Int) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    recipesViewModel: RecipesViewModel = viewModel()
 ) {
-    var searchQuery by remember { mutableStateOf("") }
-    var selectedCategory by remember { mutableStateOf("All") }
+    val searchQuery by recipesViewModel.searchQuery.collectAsState()
+    val selectedCategory by recipesViewModel.selectedCategory.collectAsState()
+    val filteredRecipes by recipesViewModel.filteredRecipes.collectAsState()
     val categories = listOf(
         "All",
         "Breakfast",
         "Main Course",
         "Salad"
     )
-    val filteredRecipes = RecipeRepository.recipes.filter { recipe ->
-        val matchesSearch = recipe.name.contains(searchQuery, ignoreCase = true)
-        val matchesCategory = selectedCategory == "All" || recipe.category == selectedCategory
-        matchesSearch && matchesCategory
-    }
     Column(modifier = modifier) {
         OutlinedTextField(
             value = searchQuery,
-            onValueChange = { searchQuery = it },
+            onValueChange = {recipesViewModel.onSearchQueryChange(it)},
             label = { Text(text = "Search recipes") },
             modifier = Modifier
                 .fillMaxWidth()
@@ -61,7 +57,7 @@ fun RecipesScreen(
                 FilterChip(
                     selected = selectedCategory == category,
                     onClick = {
-                        selectedCategory = category
+                        recipesViewModel.onCategoryChange(category)
                     },
                     label = {
                         Text(
