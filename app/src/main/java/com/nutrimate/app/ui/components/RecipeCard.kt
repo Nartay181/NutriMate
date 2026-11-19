@@ -17,6 +17,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.nutrimate.app.data.repository.RecipeRepository
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import com.nutrimate.app.R
 
 @Composable
 fun RecipeCard(
@@ -24,6 +30,7 @@ fun RecipeCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val imageRes = getRecipeImage(recipe.id)
     Card(
         onClick = onClick,
         modifier = modifier
@@ -43,9 +50,16 @@ fun RecipeCard(
                     ),
                 contentAlignment = Alignment.Center
             ) {
-                Text(
-                    text = "food_img"
-                )
+                if (imageRes != null) {
+                    Image(
+                        painter = painterResource(id = imageRes),
+                        contentDescription = recipe.name,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clip(MaterialTheme.shapes.medium),
+                        contentScale = ContentScale.Crop
+                    )
+                }
             }
             Column(
                 modifier = Modifier
