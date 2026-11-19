@@ -1,16 +1,20 @@
 package com.nutrimate.app.ui.screens.recipes
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -25,9 +29,18 @@ fun RecipesScreen(
     onRecipeClick: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var searchQuery by remember {mutableStateOf("")}
+    var searchQuery by remember { mutableStateOf("") }
+    var selectedCategory by remember { mutableStateOf("All") }
+    val categories = listOf(
+        "All",
+        "Breakfast",
+        "Main Course",
+        "Salad"
+    )
     val filteredRecipes = RecipeRepository.recipes.filter { recipe ->
-        recipe.name.contains(searchQuery, ignoreCase = true)
+        val matchesSearch = recipe.name.contains(searchQuery, ignoreCase = true)
+        val matchesCategory = selectedCategory == "All" || recipe.category == selectedCategory
+        matchesSearch && matchesCategory
     }
     Column(modifier = modifier) {
         OutlinedTextField(
@@ -39,6 +52,26 @@ fun RecipesScreen(
                 .padding(16.dp),
             singleLine = true
         )
+        LazyRow(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            contentPadding = PaddingValues(horizontal = 16.dp)
+        ) {
+            items(categories) { category ->
+                FilterChip(
+                    selected = selectedCategory == category,
+                    onClick = {
+                        selectedCategory = category
+                    },
+                    label = {
+                        Text(
+                            text = category
+                        )
+                    }
+                )
+            }
+        }
+
         if (filteredRecipes.isEmpty()) {
             Text(
                 text = "No recipes found",
@@ -47,7 +80,7 @@ fun RecipesScreen(
             )
         } else {
             LazyColumn(
-                modifier = modifier
+                modifier = Modifier.fillMaxWidth()
             ) {
                 items(filteredRecipes) {recipe ->
                     RecipeCard(
