@@ -1,4 +1,4 @@
-package com.nutrimate.app.ui.screens.recipes.details
+package com.nutrimate.app.ui.screens.details
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
