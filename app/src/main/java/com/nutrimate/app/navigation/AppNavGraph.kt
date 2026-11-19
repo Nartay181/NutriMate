@@ -9,7 +9,7 @@ import androidx.navigation.navArgument
 import com.nutrimate.app.ui.favorites.FavoritesScreen
 import com.nutrimate.app.ui.home.HomeScreen
 import com.nutrimate.app.ui.recipe_details.RecipeDetailsScreen
-import com.nutrimate.app.ui.recipes.RecipesScreen
+import com.nutrimate.app.ui.screens.recipes.RecipesScreen
 
 @Composable
 fun AppNavGraph() {
@@ -29,8 +29,7 @@ fun AppNavGraph() {
             RecipesScreen(
                 onRecipeClick = { recipeId ->
                     navController.navigate(AppRoutes.recipeDetails(recipeId))
-                },
-                onBack = { navController.popBackStack() }
+                }
             )
         }
         composable(AppRoutes.FAVORITES) {

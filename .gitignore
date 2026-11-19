@@ -18,3 +18,12 @@ local.properties
 secrets.properties
 .env
 .env.*
+# Local Android Studio configuration
+/.idea/AndroidProjectSystem.xml
+/.idea/compiler.xml
+/.idea/deploymentTargetSelector.xml
+/.idea/gradle.xml
+/.idea/misc.xml
+/.idea/runConfigurations.xml
+/.idea/vcs.xml
+.idea/deviceManager.xml
