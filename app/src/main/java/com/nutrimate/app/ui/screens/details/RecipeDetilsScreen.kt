@@ -19,6 +19,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
@@ -27,14 +29,37 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.nutrimate.app.data.model.Recipe
 import com.nutrimate.app.data.repository.RecipeRepository
+import com.nutrimate.app.ui.components.EmptyState
 import com.nutrimate.app.ui.components.FavoriteButton
 import com.nutrimate.app.ui.components.IngredientItem
 import com.nutrimate.app.ui.components.InstructionStep
 import com.nutrimate.app.ui.components.getRecipeImage
+import com.nutrimate.app.viewmodel.SharedFavoritesViewModel
+
+@Composable
+fun RecipeDetailsScreen(
+    recipeId: Int,
+    favoritesViewModel: SharedFavoritesViewModel,
+    onBack: () -> Unit
+) {
+    val recipe = RecipeRepository.getRecipeById(recipeId)
+    val favoriteIds by favoritesViewModel.favoriteIds.collectAsState()
+
+    if (recipe == null) {
+        EmptyState(message = "Recipe not found")
+    } else {
+        RecipeDetailsContent(
+            recipe = recipe,
+            isFavorite = recipe.id in favoriteIds,
+            onFavoriteClick = { favoritesViewModel.toggleFavorite(recipe.id) },
+            onBackClick = onBack
+        )
+    }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RecipeDetailsScreen(
+fun RecipeDetailsContent(
     recipe: Recipe,
     isFavorite: Boolean,
     onFavoriteClick: () -> Unit,
@@ -101,7 +126,7 @@ fun RecipeDetailsScreen(
 @Preview(showBackground = true)
 @Composable
 fun RecipeDetailsScreenPreview() {
-    RecipeDetailsScreen(
+    RecipeDetailsContent(
         recipe = RecipeRepository.recipes.first(),
         isFavorite = false,
         onFavoriteClick = {},
