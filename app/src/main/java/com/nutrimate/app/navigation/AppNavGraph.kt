@@ -1,19 +1,22 @@
 package com.nutrimate.app.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.nutrimate.app.ui.favorites.FavoritesScreen
 import com.nutrimate.app.ui.home.HomeScreen
-import com.nutrimate.app.ui.recipe_details.RecipeDetailsScreen
+import com.nutrimate.app.ui.screens.details.RecipeDetailsScreen
+import com.nutrimate.app.ui.screens.favorites.FavoritesScreen
 import com.nutrimate.app.ui.screens.recipes.RecipesScreen
+import com.nutrimate.app.viewmodel.SharedFavoritesViewModel
 
 @Composable
 fun AppNavGraph() {
     val navController = rememberNavController()
+    val favoritesViewModel: SharedFavoritesViewModel = viewModel()
 
     NavHost(
         navController = navController,
@@ -36,7 +39,13 @@ fun AppNavGraph() {
             )
         }
         composable(AppRoutes.FAVORITES) {
-            FavoritesScreen(onBack = { navController.popBackStack() })
+            FavoritesScreen(
+                favoritesViewModel = favoritesViewModel,
+                onRecipeClick = { recipeId ->
+                    navController.navigate(AppRoutes.recipeDetails(recipeId))
+                },
+                onBack = { navController.popBackStack() }
+            )
         }
         composable(
             route = AppRoutes.RECIPE_DETAILS,
@@ -51,6 +60,7 @@ fun AppNavGraph() {
             } else {
                 RecipeDetailsScreen(
                     recipeId = recipeId,
+                    favoritesViewModel = favoritesViewModel,
                     onBack = { navController.popBackStack() }
                 )
             }
