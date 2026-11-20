@@ -13,6 +13,11 @@
 .externalNativeBuild
 .cxx
 local.properties
+*.jks
+*.keystore
+secrets.properties
+.env
+.env.*
 # Local Android Studio configuration
 /.idea/AndroidProjectSystem.xml
 /.idea/compiler.xml
