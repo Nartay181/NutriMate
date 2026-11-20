@@ -6,7 +6,11 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -20,17 +24,47 @@ import com.nutrimate.app.data.repository.RecipeRepository
 import com.nutrimate.app.ui.components.EmptyState
 import com.nutrimate.app.ui.components.FavoriteButton
 import com.nutrimate.app.ui.components.RecipeCard
+import com.nutrimate.app.viewmodel.SharedFavoritesViewModel
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+
+@Composable
+fun FavoritesScreen(
+    favoritesViewModel: SharedFavoritesViewModel,
+    onRecipeClick: (Int) -> Unit,
+    onBack: () -> Unit
+) {
+    val favoriteIds by favoritesViewModel.favoriteIds.collectAsState()
+    val favoriteRecipes = RecipeRepository.recipes.filter { recipe ->
+        recipe.id in favoriteIds
+    }
+
+    FavoritesContent(
+        favoriteRecipes = favoriteRecipes,
+        onRecipeClick = onRecipeClick,
+        onRemoveClick = { recipeId -> favoritesViewModel.toggleFavorite(recipeId) },
+        onBackClick = onBack
+    )
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FavoritesScreen(
+fun FavoritesContent(
     favoriteRecipes: List<Recipe>,
     onRecipeClick: (Int) -> Unit,
-    onRemoveClick: (Int) -> Unit
+    onRemoveClick: (Int) -> Unit,
+    onBackClick: () -> Unit
 ) {
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text("Favorites") })
+            TopAppBar(
+                title = { Text("Favorites") },
+                navigationIcon = {
+                    IconButton(onClick = onBackClick) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    }
+                }
+            )
         }
     ) { innerPadding ->
         if (favoriteRecipes.isEmpty()) {
@@ -65,19 +99,21 @@ fun FavoritesScreen(
 @Preview(showBackground = true)
 @Composable
 fun FavoritesScreenPreview() {
-    FavoritesScreen(
+    FavoritesContent(
         favoriteRecipes = RecipeRepository.recipes.take(2),
         onRecipeClick = {},
-        onRemoveClick = {}
+        onRemoveClick = {},
+        onBackClick = {}
     )
 }
 
 @Preview(showBackground = true)
 @Composable
 fun FavoritesScreenEmptyPreview() {
-    FavoritesScreen(
+    FavoritesContent(
         favoriteRecipes = emptyList(),
         onRecipeClick = {},
-        onRemoveClick = {}
+        onRemoveClick = {},
+        onBackClick = {}
     )
 }
