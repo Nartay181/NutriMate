@@ -1,4 +1,4 @@
-package com.nutrimate.app.ui.home
+package com.nutrimate.app.ui.screens.home
 
 import androidx.lifecycle.ViewModel
 import com.nutrimate.app.data.repository.RecipeRepository

@@ -1,4 +1,4 @@
-package com.nutrimate.app.ui.home
+package com.nutrimate.app.ui.screens.home
 
 import com.nutrimate.app.data.model.Recipe
 
