@@ -10,6 +10,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -28,54 +29,59 @@ fun HomeScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background
     ) {
-        Text(
-            text = uiState.welcomeMessage,
-            style = MaterialTheme.typography.headlineMedium
-        )
-        Text(
-            text = "Featured recipes",
-            style = MaterialTheme.typography.titleLarge,
-            modifier = Modifier.padding(top = 24.dp, bottom = 12.dp)
-        )
-
-        LazyColumn(
-            modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            items(
-                items = uiState.featuredRecipes,
-                key = { recipe -> recipe.id }
-            ) { recipe ->
-                RecipeCard(
-                    recipe = recipe,
-                    onClick = { onOpenRecipe(recipe.id) },
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-        }
-
-        Row(
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                .fillMaxSize()
+                .padding(16.dp)
         ) {
-            Button(
-                onClick = onOpenRecipes,
-                modifier = Modifier.weight(1f)
+            Text(
+                text = uiState.welcomeMessage,
+                style = MaterialTheme.typography.headlineMedium
+            )
+            Text(
+                text = "Featured recipes",
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.padding(top = 24.dp, bottom = 12.dp)
+            )
+
+            LazyColumn(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                Text("Recipes")
+                items(
+                    items = uiState.featuredRecipes,
+                    key = { recipe -> recipe.id }
+                ) { recipe ->
+                    RecipeCard(
+                        recipe = recipe,
+                        onClick = { onOpenRecipe(recipe.id) },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
             }
-            Button(
-                onClick = onOpenFavorites,
-                modifier = Modifier.weight(1f)
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                Text("Favorites")
+                Button(
+                    onClick = onOpenRecipes,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text("Recipes")
+                }
+                Button(
+                    onClick = onOpenFavorites,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text("Favorites")
+                }
             }
         }
     }
