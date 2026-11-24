@@ -17,7 +17,7 @@ import com.nutrimate.app.ui.components.RecipeCard
 import com.nutrimate.app.ui.components.SectionTitle
 
 @Composable
-fun HomeScreen(onOpenRecipes: () -> Unit, onOpenFavorites: () -> Unit, onOpenRecipe: (Int) -> Unit, viewModel: HomeViewModel = viewModel()) {
+fun HomeScreen(onOpenRecipes: (String?) -> Unit, onOpenFavorites: () -> Unit, onOpenRecipe: (Int) -> Unit, viewModel: HomeViewModel = viewModel()) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 20.dp)) {
         Spacer(Modifier.height(24.dp))
@@ -27,13 +27,13 @@ fun HomeScreen(onOpenRecipes: () -> Unit, onOpenFavorites: () -> Unit, onOpenRec
             Column(Modifier.padding(20.dp)) {
                 Text("Find your next favourite recipe", style = MaterialTheme.typography.headlineSmall)
                 Text("Fresh ideas, simple ingredients, happy meals.", Modifier.padding(top = 8.dp), style = MaterialTheme.typography.bodyMedium)
-                PrimaryButton("Explore recipes", onOpenRecipes, Modifier.padding(top = 16.dp))
+                PrimaryButton("Explore recipes", { onOpenRecipes(null) }, Modifier.padding(top = 16.dp))
             }
         }
-        Row(Modifier.fillMaxWidth().padding(top = 28.dp), horizontalArrangement = Arrangement.SpaceBetween) { SectionTitle("Popular this week"); TextButton(onOpenRecipes) { Text("View all") } }
+        Row(Modifier.fillMaxWidth().padding(top = 28.dp), horizontalArrangement = Arrangement.SpaceBetween) { SectionTitle("Popular this week"); TextButton({ onOpenRecipes(null) }) { Text("View all") } }
         LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp), contentPadding = PaddingValues(vertical = 8.dp)) { items(state.featuredRecipes, key = { it.id }) { recipe -> RecipeCard(recipe, { onOpenRecipe(recipe.id) }, Modifier.width(260.dp)) } }
         SectionTitle("Browse categories", Modifier.padding(top = 20.dp, bottom = 12.dp))
-        LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) { items(listOf("Breakfast", "Chicken", "Vegetarian", "Dessert")) { label -> AssistChip(onClick = onOpenRecipes, label = { Text(label) }) } }
+        LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) { items(listOf("Breakfast", "Chicken", "Vegetarian", "Dessert")) { label -> AssistChip(onClick = { onOpenRecipes(label) }, label = { Text(label) }) } }
         OutlinedButton(onClick = onOpenFavorites, modifier = Modifier.fillMaxWidth().padding(top = 20.dp, bottom = 28.dp)) { Text("Open your favorites") }
     }
 }

@@ -20,6 +20,7 @@ import com.nutrimate.app.ui.components.NutriMateTopBar
 fun ProfileScreen(favoriteCount: Int, onThemeChanged: (Boolean) -> Unit = {}, viewModel: ProfileViewModel = viewModel()) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     var showNameDialog by remember { mutableStateOf(false) }
+    var showAboutDialog by remember { mutableStateOf(false) }
     Column(Modifier.fillMaxSize().padding(horizontal = 20.dp)) {
         NutriMateTopBar("Profile")
         Column(Modifier.fillMaxWidth().weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
@@ -37,7 +38,7 @@ fun ProfileScreen(favoriteCount: Int, onThemeChanged: (Boolean) -> Unit = {}, vi
             }
             HorizontalDivider()
             ProfileMenuItem("Appearance", "Light / Dark theme", checked = state.darkTheme) { viewModel.toggleTheme(); onThemeChanged(!state.darkTheme) }
-            ProfileMenuItem("About NutriMate", "Simple recipes for every day") { }
+            ProfileMenuItem("About NutriMate", "Simple recipes for every day") { showAboutDialog = true }
             Row(Modifier.fillMaxWidth().padding(top = 20.dp), verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Default.Info, null, tint = MaterialTheme.colorScheme.primary)
                 Text("Version 1.0", Modifier.padding(start = 12.dp), style = MaterialTheme.typography.bodySmall)
@@ -50,6 +51,14 @@ fun ProfileScreen(favoriteCount: Int, onThemeChanged: (Boolean) -> Unit = {}, vi
             text = { OutlinedTextField(draft, { draft = it }, label = { Text("Name") }, singleLine = true) },
             confirmButton = { TextButton({ viewModel.updateName(draft); showNameDialog = false }) { Text("Save") } },
             dismissButton = { TextButton({ showNameDialog = false }) { Text("Cancel") } })
+    }
+    if (showAboutDialog) {
+        AlertDialog(
+            onDismissRequest = { showAboutDialog = false },
+            title = { Text("About NutriMate") },
+            text = { Text("NutriMate helps you discover simple recipes, save favourites, and plan your next delicious meal." ) },
+            confirmButton = { TextButton({ showAboutDialog = false }) { Text("Close") } }
+        )
     }
 }
 

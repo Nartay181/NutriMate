@@ -27,28 +27,34 @@ fun AppNavGraph(onThemeChanged: (Boolean) -> Unit = {}) {
     val favoritesViewModel: SharedFavoritesViewModel = viewModel()
     val currentEntry by navController.currentBackStackEntryAsState()
     val currentRoute = currentEntry?.destination?.route
-    val showBottomBar = currentRoute in listOf(AppRoutes.HOME, AppRoutes.RECIPES, AppRoutes.FAVORITES, AppRoutes.PROFILE)
+    val showBottomBar = currentRoute in listOf(AppRoutes.HOME, AppRoutes.RECIPES, AppRoutes.RECIPES_WITH_CATEGORY, AppRoutes.FAVORITES, AppRoutes.PROFILE)
 
     val navigateFromBottomBar: (String) -> Unit = { route ->
-        navController.navigate(route) {
-            popUpTo(AppRoutes.HOME) { saveState = true }
-            launchSingleTop = true
-            restoreState = true
+        if (route != currentRoute) {
+            navController.navigate(route) {
+                popUpTo(AppRoutes.HOME) { saveState = true }
+                launchSingleTop = true
+                restoreState = true
+            }
         }
     }
     Scaffold(bottomBar = { if (showBottomBar) NutriMateBottomBar(currentRoute, navigateFromBottomBar) }) { padding ->
     NavHost(navController = navController, startDestination = AppRoutes.HOME, modifier = androidx.compose.ui.Modifier.padding(padding)) {
         composable(AppRoutes.HOME) {
             HomeScreen(
-                onOpenRecipes = { navController.navigate(AppRoutes.RECIPES) },
+                onOpenRecipes = { category -> navController.navigate(AppRoutes.recipes(category ?: "All")) },
                 onOpenFavorites = { navController.navigate(AppRoutes.FAVORITES) },
                 onOpenRecipe = { recipeId ->
                     navController.navigate(AppRoutes.recipeDetails(recipeId))
                 }
             )
         }
-        composable(AppRoutes.RECIPES) {
+        composable(
+            AppRoutes.RECIPES_WITH_CATEGORY,
+            arguments = listOf(navArgument("category") { defaultValue = "All" })
+        ) { entry ->
             RecipesScreen(
+                initialCategory = entry.arguments?.getString("category") ?: "All",
                 onRecipeClick = { recipeId ->
                     navController.navigate(AppRoutes.recipeDetails(recipeId))
                 },
