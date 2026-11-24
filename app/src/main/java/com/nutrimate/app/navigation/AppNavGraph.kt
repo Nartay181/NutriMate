@@ -17,6 +17,9 @@ import com.nutrimate.app.ui.screens.profile.ProfileScreen
 import com.nutrimate.app.ui.components.NutriMateBottomBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.foundation.layout.padding
+import androidx.compose.ui.Modifier
 
 @Composable
 fun AppNavGraph(onThemeChanged: (Boolean) -> Unit = {}) {
