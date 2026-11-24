@@ -4,7 +4,7 @@ NutriMate is an Android recipe and nutrition application for browsing local reci
 
 ## Main features
 
-- Featured recipes on the Home screen
+- Home screen with feature card, popular recipes, categories, and Favorites shortcut
 - Recipe catalogue with reusable recipe cards
 - Search by recipe name
 - Category filtering
@@ -13,6 +13,12 @@ NutriMate is an Android recipe and nutrition application for browsing local reci
 - Add and remove recipes from Favorites
 - Empty states for unmatched searches and empty Favorites
 - Material 3 styling and back navigation
+- Shared bottom navigation across Home, Recipes, Favorites, and Profile
+- Local Profile with editable name, statistics, and theme toggle
+
+## Screens
+
+Home, Recipes, Recipe Details, Favorites, and Profile. Recipe Details intentionally hides the bottom bar and uses a back action for a focused reading experience.
 
 ## Architecture
 

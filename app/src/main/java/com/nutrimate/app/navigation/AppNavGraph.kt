@@ -6,22 +6,28 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
 import com.nutrimate.app.ui.screens.home.HomeScreen
 import com.nutrimate.app.ui.screens.details.RecipeDetailsScreen
 import com.nutrimate.app.ui.screens.favorites.FavoritesScreen
 import com.nutrimate.app.ui.screens.recipes.RecipesScreen
 import com.nutrimate.app.viewmodel.SharedFavoritesViewModel
+import com.nutrimate.app.ui.screens.profile.ProfileScreen
+import com.nutrimate.app.ui.components.NutriMateBottomBar
+import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.collectAsState
 
 @Composable
-fun AppNavGraph() {
+fun AppNavGraph(onThemeChanged: (Boolean) -> Unit = {}) {
     val navController = rememberNavController()
     val favoritesViewModel: SharedFavoritesViewModel = viewModel()
+    val currentEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = currentEntry?.destination?.route
+    val showBottomBar = currentRoute in listOf(AppRoutes.HOME, AppRoutes.RECIPES, AppRoutes.FAVORITES, AppRoutes.PROFILE)
 
-    NavHost(
-        navController = navController,
-        startDestination = AppRoutes.HOME
-    ) {
+    Scaffold(bottomBar = { if (showBottomBar) NutriMateBottomBar(currentRoute, navController::navigate) }) { padding ->
+    NavHost(navController = navController, startDestination = AppRoutes.HOME, modifier = androidx.compose.ui.Modifier.padding(padding)) {
         composable(AppRoutes.HOME) {
             HomeScreen(
                 onOpenRecipes = { navController.navigate(AppRoutes.RECIPES) },
@@ -48,6 +54,7 @@ fun AppNavGraph() {
                 onBack = { navController.popBackStack() }
             )
         }
+        composable(AppRoutes.PROFILE) { ProfileScreen(favoriteCount = favoritesViewModel.favoriteIds.collectAsState().value.size, onThemeChanged = onThemeChanged) }
         composable(
             route = AppRoutes.RECIPE_DETAILS,
             arguments = listOf(navArgument("recipeId") { type = NavType.IntType })
@@ -66,5 +73,6 @@ fun AppNavGraph() {
                 )
             }
         }
+    }
     }
 }
