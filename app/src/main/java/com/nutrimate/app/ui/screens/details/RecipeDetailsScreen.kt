@@ -35,28 +35,50 @@ import com.nutrimate.app.ui.components.IngredientItem
 import com.nutrimate.app.ui.components.InstructionStep
 import com.nutrimate.app.ui.components.getRecipeImage
 import com.nutrimate.app.viewmodel.SharedFavoritesViewModel
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.Alignment
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
 fun RecipeDetailsScreen(
     recipeId: Int,
     favoritesViewModel: SharedFavoritesViewModel,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    detailsViewModel: RecipeDetailsViewModel = viewModel()
 ) {
-    val recipe = RecipeRepository.getRecipeById(recipeId)
-    val favoriteIds by favoritesViewModel.favoriteIds.collectAsState()
+    LaunchedEffect(recipeId) {
+        detailsViewModel.loadRecipe(recipeId)
+    }
 
-    if (recipe == null) {
-        EmptyState(message = "Recipe not found")
-    } else {
-        RecipeDetailsContent(
-            recipe = recipe,
-            isFavorite = recipe.id in favoriteIds,
-            onFavoriteClick = { favoritesViewModel.toggleFavorite(recipe.id) },
-            onBackClick = onBack
-        )
+    val uiState by detailsViewModel.uiState.collectAsState()
+    val favoriteIds by favoritesViewModel.favoriteIds.collectAsState()
+    val recipe = uiState.recipe
+    when {
+        uiState.isLoading -> {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
+            }
+        }
+
+        recipe == null -> {
+            EmptyState(message = "Recipe not found")
+        }
+
+        else -> {
+            RecipeDetailsContent(
+                recipe = recipe,
+                isFavorite = recipe.id in favoriteIds,
+                onFavoriteClick = { favoritesViewModel.toggleFavorite(recipe.id) },
+                onBackClick = onBack
+            ) }
     }
 }
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RecipeDetailsContent(
