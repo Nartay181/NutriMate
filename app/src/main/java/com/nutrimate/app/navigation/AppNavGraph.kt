@@ -31,10 +31,14 @@ fun AppNavGraph(onThemeChanged: (Boolean) -> Unit = {}) {
 
     val navigateFromBottomBar: (String) -> Unit = { route ->
         if (route != currentRoute) {
-            navController.navigate(route) {
-                popUpTo(AppRoutes.HOME) { saveState = true }
-                launchSingleTop = true
-                restoreState = true
+            if (route == AppRoutes.HOME) {
+                navController.popBackStack(AppRoutes.HOME, inclusive = false)
+            } else {
+                navController.navigate(route) {
+                    popUpTo(AppRoutes.HOME) { saveState = true }
+                    launchSingleTop = true
+                    restoreState = true
+                }
             }
         }
     }
