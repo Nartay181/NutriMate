@@ -26,7 +26,14 @@ fun AppNavGraph(onThemeChanged: (Boolean) -> Unit = {}) {
     val currentRoute = currentEntry?.destination?.route
     val showBottomBar = currentRoute in listOf(AppRoutes.HOME, AppRoutes.RECIPES, AppRoutes.FAVORITES, AppRoutes.PROFILE)
 
-    Scaffold(bottomBar = { if (showBottomBar) NutriMateBottomBar(currentRoute, navController::navigate) }) { padding ->
+    val navigateFromBottomBar: (String) -> Unit = { route ->
+        navController.navigate(route) {
+            popUpTo(AppRoutes.HOME) { saveState = true }
+            launchSingleTop = true
+            restoreState = true
+        }
+    }
+    Scaffold(bottomBar = { if (showBottomBar) NutriMateBottomBar(currentRoute, navigateFromBottomBar) }) { padding ->
     NavHost(navController = navController, startDestination = AppRoutes.HOME, modifier = androidx.compose.ui.Modifier.padding(padding)) {
         composable(AppRoutes.HOME) {
             HomeScreen(
