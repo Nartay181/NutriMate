@@ -36,7 +36,7 @@ fun ProfileScreen(favoriteCount: Int, onThemeChanged: (Boolean) -> Unit = {}, vi
                 StatItem(state.viewedRecipes.toString(), "Recipes viewed")
             }
             HorizontalDivider()
-            ProfileMenuItem("Appearance", "Light / Dark theme") { viewModel.toggleTheme(); onThemeChanged(!state.darkTheme) }
+            ProfileMenuItem("Appearance", "Light / Dark theme", checked = state.darkTheme) { viewModel.toggleTheme(); onThemeChanged(!state.darkTheme) }
             ProfileMenuItem("About NutriMate", "Simple recipes for every day") { }
             Row(Modifier.fillMaxWidth().padding(top = 20.dp), verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Default.Info, null, tint = MaterialTheme.colorScheme.primary)
@@ -54,4 +54,14 @@ fun ProfileScreen(favoriteCount: Int, onThemeChanged: (Boolean) -> Unit = {}, vi
 }
 
 @Composable private fun StatItem(value: String, label: String) { Column(horizontalAlignment = Alignment.CenterHorizontally) { Text(value, style = MaterialTheme.typography.headlineSmall); Text(label, style = MaterialTheme.typography.bodySmall) } }
-@Composable private fun ProfileMenuItem(title: String, subtitle: String, onClick: () -> Unit) { ListItem(headlineContent = { Text(title) }, supportingContent = { Text(subtitle) }, modifier = Modifier.fillMaxWidth(), trailingContent = { TextButton(onClick) { Text(if (title == "Appearance") "Toggle" else "") } }) }
+@Composable private fun ProfileMenuItem(title: String, subtitle: String, checked: Boolean? = null, onClick: () -> Unit) {
+    ListItem(
+        headlineContent = { Text(title) },
+        supportingContent = { Text(subtitle) },
+        modifier = Modifier.fillMaxWidth(),
+        trailingContent = {
+            if (checked != null) Switch(checked = checked, onCheckedChange = { onClick() })
+            else TextButton(onClick) { Text("Open") }
+        }
+    )
+}
