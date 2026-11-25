@@ -37,10 +37,15 @@ import com.nutrimate.app.ui.components.getRecipeImage
 import com.nutrimate.app.viewmodel.SharedFavoritesViewModel
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Button
 
 @Composable
 fun RecipeDetailsScreen(
@@ -100,6 +105,23 @@ fun RecipeDetailsContent(
                     FavoriteButton(isFavorite = isFavorite, onClick = onFavoriteClick)
                 }
             )
+        },
+        bottomBar = {
+            Button(
+                onClick = onFavoriteClick,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .navigationBarsPadding()
+                    .padding(16.dp)
+                    .height(52.dp)
+            ){
+                Icon(
+                    imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
+                    contentDescription = null
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(if (isFavorite) "Remove from Favorites" else "Add to Favorites")
+        }
         }
     ) { innerPadding ->
         LazyColumn(
@@ -151,6 +173,17 @@ fun RecipeDetailsScreenPreview() {
     RecipeDetailsContent(
         recipe = RecipeRepository.recipes.first(),
         isFavorite = false,
+        onFavoriteClick = {},
+        onBackClick = {}
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun RecipeDetailsFavoritePreview(){
+    RecipeDetailsContent(
+        recipe = RecipeRepository.recipes.first(),
+        isFavorite = true,
         onFavoriteClick = {},
         onBackClick = {}
     )
