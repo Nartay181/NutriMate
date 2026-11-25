@@ -46,6 +46,9 @@ import androidx.compose.ui.Alignment
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.foundation.layout.Row
+import androidx.compose.material3.HorizontalDivider
 
 @Composable
 fun RecipeDetailsScreen(
@@ -136,19 +139,55 @@ fun RecipeDetailsContent(
                         contentDescription = recipe.name,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(200.dp)
-                            .clip(MaterialTheme.shapes.medium),
+                            .height(250.dp)
+                            .clip(MaterialTheme.shapes.large),
                         contentScale = ContentScale.Crop
                     )
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(20.dp))
                 }
 
-                Text(recipe.name, style = MaterialTheme.typography.headlineSmall)
-                Text("${recipe.category} • ${recipe.cookingTime} min")
+                Text(
+                    text = recipe.name,
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Bold
+                )
                 Spacer(modifier = Modifier.height(8.dp))
-                Text(recipe.description)
+
+                Row(verticalAlignment = Alignment.CenterVertically){
+                    Text(
+                        text = recipe.category,
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Text(
+                        text = "  •  ",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Text(
+                        text = "${recipe.cookingTime} min",
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.secondary
+                    )
+                }
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Text(
+                    text = recipe.description,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+                HorizontalDivider()
                 Spacer(modifier = Modifier.height(16.dp))
-                Text("Ingredients", style = MaterialTheme.typography.titleLarge)
+
+                Text(
+                    text = "Ingredients",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Spacer(modifier = Modifier.height(8.dp))
             }
 
             items(recipe.ingredients) { ingredient ->
@@ -157,9 +196,16 @@ fun RecipeDetailsContent(
 
             item {
                 Spacer(modifier = Modifier.height(16.dp))
-                Text("Instructions", style = MaterialTheme.typography.titleLarge)
+                HorizontalDivider()
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = "Instructions",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Spacer(modifier = Modifier.height(8.dp))
             }
-
             itemsIndexed(recipe.instructions) { index, step ->
                 InstructionStep(stepNumber = index + 1, text = step)
             }
