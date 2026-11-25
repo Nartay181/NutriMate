@@ -1,6 +1,7 @@
 package com.nutrimate.app.ui.screens.recipes
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -8,8 +9,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.FilterChip
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -20,13 +23,10 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.nutrimate.app.data.repository.RecipeRepository
 import com.nutrimate.app.ui.components.RecipeCard
 import com.nutrimate.app.ui.theme.NutriMateTheme
 
@@ -40,7 +40,7 @@ fun RecipesScreen(
 ) {
     val searchQuery by recipesViewModel.searchQuery.collectAsState()
     val selectedCategory by recipesViewModel.selectedCategory.collectAsState()
-    val filteredRecipes by recipesViewModel.filteredRecipes.collectAsState()
+    val uiState by recipesViewModel.uiState.collectAsState()
     val categories = recipesViewModel.categories
     Scaffold(
         topBar = {
@@ -87,29 +87,39 @@ fun RecipesScreen(
             }
         }
 
-        if (filteredRecipes.isEmpty()) {
-            Text(
-                text = "No recipes found",
-                modifier = Modifier.padding(16.dp),
-                style = MaterialTheme.typography.bodyLarge
-            )
-        } else {
-            LazyColumn(
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                items(filteredRecipes) {recipe ->
-                    RecipeCard(
-                        recipe = recipe,
-                        onClick = {
-                            onRecipeClick(recipe.id)
-                        },
-                        modifier = Modifier.padding(
-                            start = 16.dp,
-                            end = 16.dp,
-                            bottom = 8.dp
+        when (val state = uiState) {
+            is RecipesUiState.Loading -> {
+                CircularProgressIndicator(
+                    modifier = Modifier.padding(16.dp)
+                )
+            }
+
+            is RecipesUiState.Success -> {
+                LazyColumn(modifier = Modifier.fillMaxWidth()) {
+                    items(state.meals) {meal ->
+                        Text(
+                            text = meal.name,
+                            modifier = Modifier.padding(16.dp),
+                            style = MaterialTheme.typography.titleMedium
                         )
-                    )
+                    }
                 }
+            }
+
+            is RecipesUiState.Error -> {
+                Text(
+                    text = state.message,
+                    modifier = Modifier.padding(16.dp),
+                    color = MaterialTheme.colorScheme.error
+                )
+            }
+
+            is RecipesUiState.Empty -> {
+                Text(
+                    text = "No recipes found",
+                    modifier = Modifier.padding(16.dp),
+                    style = MaterialTheme.typography.bodyLarge
+                )
             }
         }
         }
