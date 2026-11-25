@@ -1,17 +1,50 @@
 package com.nutrimate.app.ui.screens.recipes
 
 import androidx.lifecycle.ViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import com.nutrimate.app.data.model.Recipe
-import com.nutrimate.app.data.repository.RecipeRepository
-import kotlinx.coroutines.flow.combine
 import androidx.lifecycle.viewModelScope
+import com.nutrimate.app.data.repository.MealRepository
+import com.nutrimate.app.data.repository.RecipeRepository
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.WhileSubscribed
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
+import okio.IOException
 
 class RecipesViewModel : ViewModel() {
+    private val mealRepository = MealRepository()
+
+    private val _uiState = MutableStateFlow<RecipesUiState>(RecipesUiState.Loading)
+    val uiState: StateFlow<RecipesUiState> = _uiState.asStateFlow()
+
+    init {
+        loadRecipes()
+    }
+
+    fun loadRecipes() {
+        viewModelScope.launch {
+            _uiState.value = RecipesUiState.Loading
+
+            try {
+                val meals = mealRepository.searchMeals("")
+                _uiState.value = if (meals.isEmpty()) {
+                    RecipesUiState.Empty
+                } else {
+                    RecipesUiState.Success(meals)
+                }
+            } catch (e: IOException) {
+                _uiState.value = RecipesUiState.Error(
+                    "Please check your internet connection."
+                )
+            } catch (e: retrofit2.HttpException) {
+                _uiState.value = RecipesUiState.Error(
+                    "Server error: ${e.code()}"
+                )
+            }
+        }
+    }
     private val _searchQuery = MutableStateFlow("")
     val searchQuery: StateFlow<String> = _searchQuery
 
