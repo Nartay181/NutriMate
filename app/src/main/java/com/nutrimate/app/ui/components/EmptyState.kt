@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons.Filled
 import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -22,7 +23,9 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun EmptyState(
     message: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    actionText: String? = null,
+    onAction: (() -> Unit)? = null
 ){
     Column(
         modifier= modifier
@@ -45,10 +48,26 @@ fun EmptyState(
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
 
+        if (actionText != null && onAction != null){
+            Spacer(modifier = Modifier.height(24.dp))
+            Button(onClick = onAction) {
+                Text(actionText)
+            }
+        }
     }
 }
 @Preview(showBackground = true)
 @Composable
 fun EmptyStatePreview() {
     EmptyState(message = "No favorite recipes yet.\nTap heart icon on a recipe to save it")
+}
+
+@Preview(showBackground = true)
+@Composable
+fun EmptyStateWithActionPreview() {
+    EmptyState(
+        message = "No favorite recipes yet",
+        actionText = "Explore Recipes",
+        onAction = {}
+    )
 }
