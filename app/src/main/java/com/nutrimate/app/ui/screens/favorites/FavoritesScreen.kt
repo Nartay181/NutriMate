@@ -32,7 +32,8 @@ import androidx.compose.runtime.getValue
 fun FavoritesScreen(
     favoritesViewModel: SharedFavoritesViewModel,
     onRecipeClick: (Int) -> Unit,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onExploreRecipes: () -> Unit
 ) {
     val favoriteIds by favoritesViewModel.favoriteIds.collectAsState()
     val favoriteRecipes = RecipeRepository.recipes.filter { recipe ->
@@ -43,7 +44,8 @@ fun FavoritesScreen(
         favoriteRecipes = favoriteRecipes,
         onRecipeClick = onRecipeClick,
         onRemoveClick = { recipeId -> favoritesViewModel.toggleFavorite(recipeId) },
-        onBackClick = onBack
+        onBackClick = onBack,
+        onExploreRecipesClick = onExploreRecipes
     )
 }
 
@@ -53,7 +55,8 @@ fun FavoritesContent(
     favoriteRecipes: List<Recipe>,
     onRecipeClick: (Int) -> Unit,
     onRemoveClick: (Int) -> Unit,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    onExploreRecipesClick: () -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -70,7 +73,9 @@ fun FavoritesContent(
         if (favoriteRecipes.isEmpty()) {
             EmptyState(
                 message = "No favorite recipes yet.\nTap ♥ on a recipe to save it.",
-                modifier = Modifier.padding(innerPadding)
+                modifier = Modifier.padding(innerPadding),
+                actionText = "Explore Recipes",
+                onAction = onExploreRecipesClick
             )
         } else {
             LazyColumn(
@@ -109,7 +114,8 @@ fun FavoritesScreenPreview() {
         favoriteRecipes = RecipeRepository.recipes.take(2),
         onRecipeClick = {},
         onRemoveClick = {},
-        onBackClick = {}
+        onBackClick = {},
+        onExploreRecipesClick = {}
     )
 }
 
@@ -120,6 +126,7 @@ fun FavoritesScreenEmptyPreview() {
         favoriteRecipes = emptyList(),
         onRecipeClick = {},
         onRemoveClick = {},
-        onBackClick = {}
+        onBackClick = {},
+        onExploreRecipesClick ={}
     )
 }
