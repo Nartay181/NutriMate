@@ -3,6 +3,9 @@ package com.nutrimate.app.ui.screens.recipes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.Alignment
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -24,6 +27,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.focusModifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -41,7 +45,7 @@ fun RecipesScreen(
     val searchQuery by recipesViewModel.searchQuery.collectAsState()
     val selectedCategory by recipesViewModel.selectedCategory.collectAsState()
     val uiState by recipesViewModel.uiState.collectAsState()
-    val categories = recipesViewModel.categories
+    val categories by recipesViewModel.categories.collectAsState()
     Scaffold(
         topBar = {
             TopAppBar(
@@ -89,9 +93,14 @@ fun RecipesScreen(
 
         when (val state = uiState) {
             is RecipesUiState.Loading -> {
-                CircularProgressIndicator(
-                    modifier = Modifier.padding(16.dp)
-                )
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
             }
 
             is RecipesUiState.Success -> {
