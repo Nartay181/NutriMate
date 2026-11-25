@@ -1,6 +1,7 @@
 package com.nutrimate.app.ui.screens.recipes
 
 import androidx.lifecycle.ViewModel
+import kotlinx.coroutines.Job
 import androidx.lifecycle.viewModelScope
 import com.nutrimate.app.data.repository.MealRepository
 import com.nutrimate.app.data.repository.RecipeRepository
@@ -14,21 +15,20 @@ import kotlinx.coroutines.launch
 import okio.IOException
 
 class RecipesViewModel : ViewModel() {
+    private var searchJob: Job? = null
     private val mealRepository = MealRepository()
 
     private val _uiState = MutableStateFlow<RecipesUiState>(RecipesUiState.Loading)
     val uiState: StateFlow<RecipesUiState> = _uiState.asStateFlow()
 
-    init {
-        loadRecipes()
-    }
-
     fun loadRecipes() {
-        viewModelScope.launch {
+        searchJob?.cancel()
+
+        searchJob = viewModelScope.launch {
             _uiState.value = RecipesUiState.Loading
 
             try {
-                val meals = mealRepository.searchMeals("")
+                val meals = mealRepository.searchMeals(_searchQuery.value)
                 _uiState.value = if (meals.isEmpty()) {
                     RecipesUiState.Empty
                 } else {
@@ -73,9 +73,14 @@ class RecipesViewModel : ViewModel() {
 
     fun onSearchQueryChange(query: String) {
         _searchQuery.value = query
+        loadRecipes()
     }
 
     fun onCategoryChange(category: String) {
         _selectedCategory.value = category
+    }
+
+    init {
+        loadRecipes()
     }
 }
