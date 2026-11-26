@@ -8,7 +8,6 @@ import kotlinx.coroutines.flow.Flow
 class FavoritesRepository(
     private val favoriteRecipeDao: FavoriteRecipeDao
 ) {
-
     // READ
     val favorites: Flow<List<FavoriteRecipeEntity>> = favoriteRecipeDao.getAllFavorites()
 

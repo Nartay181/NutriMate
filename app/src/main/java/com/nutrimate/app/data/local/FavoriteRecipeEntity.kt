@@ -11,6 +11,6 @@ data class FavoriteRecipeEntity(
     val category: String,
     val imageUrl: String,
     val note: String = "",
-    val rating: Int = 0,          // личная оценка 0–5, 0 = не оценено
+    val rating: Int = 0,
     val savedAt: Long = System.currentTimeMillis()
 )
