@@ -1,16 +1,27 @@
 package com.nutrimate.app.ui.screens.details
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -18,14 +29,19 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import coil3.compose.AsyncImage
 import com.nutrimate.app.data.model.Recipe
 import com.nutrimate.app.data.repository.RecipeRepository
 import com.nutrimate.app.ui.components.EmptyState
@@ -34,21 +50,6 @@ import com.nutrimate.app.ui.components.IngredientItem
 import com.nutrimate.app.ui.components.InstructionStep
 import com.nutrimate.app.ui.components.getRecipeImage
 import com.nutrimate.app.viewmodel.SharedFavoritesViewModel
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.ui.Alignment
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.compose.foundation.layout.width
-import androidx.compose.material3.Button
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.foundation.layout.Row
-import androidx.compose.material3.HorizontalDivider
-import coil3.compose.AsyncImage
 
 @Composable
 fun RecipeDetailsScreen(
@@ -57,6 +58,7 @@ fun RecipeDetailsScreen(
     onBack: () -> Unit,
     detailsViewModel: RecipeDetailsViewModel = viewModel()
 ) {
+    // load the recipe when the screen opens
     LaunchedEffect(recipeId) {
         detailsViewModel.loadRecipe(recipeId)
     }
@@ -90,8 +92,8 @@ fun RecipeDetailsScreen(
             val recipe = state.recipe
             RecipeDetailsContent(
                 recipe = recipe,
-                isFavorite = recipe.id in favoriteIds,
-                onFavoriteClick = { favoritesViewModel.toggleFavorite(recipe.id) },
+                isFavorite = recipe.id.toString() in favoriteIds,
+                onFavoriteClick = { favoritesViewModel.toggleFavorite(recipe) },
                 onBackClick = onBack
             )
         }
@@ -150,6 +152,7 @@ fun RecipeDetailsContent(
                     .clip(MaterialTheme.shapes.large)
 
                 if (recipe.imageUrl.isNotBlank()) {
+                    // API recipe
                     AsyncImage(
                         model = recipe.imageUrl,
                         contentDescription = recipe.name,
@@ -158,6 +161,7 @@ fun RecipeDetailsContent(
                     )
                     Spacer(modifier = Modifier.height(20.dp))
                 } else if (imageRes != null) {
+                    // local recipe: image from resources
                     Image(
                         painter = painterResource(id = imageRes),
                         contentDescription = recipe.name,
@@ -229,6 +233,7 @@ fun RecipeDetailsContent(
                 )
                 Spacer(modifier = Modifier.height(8.dp))
             }
+
             itemsIndexed(recipe.instructions) { index, step ->
                 InstructionStep(stepNumber = index + 1, text = step)
             }

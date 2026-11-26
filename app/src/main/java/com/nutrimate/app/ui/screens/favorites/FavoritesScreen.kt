@@ -37,13 +37,12 @@ fun FavoritesScreen(
 ) {
     val favoriteIds by favoritesViewModel.favoriteIds.collectAsState()
     val favoriteRecipes = RecipeRepository.recipes.filter { recipe ->
-        recipe.id in favoriteIds
-    }
+        recipe.id.toString() in favoriteIds}
 
     FavoritesContent(
         favoriteRecipes = favoriteRecipes,
         onRecipeClick = onRecipeClick,
-        onRemoveClick = { recipeId -> favoritesViewModel.toggleFavorite(recipeId) },
+        onRemoveClick = { recipeId -> favoritesViewModel.removeFavorite(recipeId.toString()) },
         onBackClick = onBack,
         onExploreRecipesClick = onExploreRecipes
     )
