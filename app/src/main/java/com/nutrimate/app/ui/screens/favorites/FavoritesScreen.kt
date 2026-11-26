@@ -11,6 +11,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -27,12 +28,12 @@ import com.nutrimate.app.ui.components.RecipeCard
 import com.nutrimate.app.viewmodel.SharedFavoritesViewModel
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-
 @Composable
 fun FavoritesScreen(
     favoritesViewModel: SharedFavoritesViewModel,
     onRecipeClick: (Int) -> Unit,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onExploreRecipes: () -> Unit
 ) {
     val favoriteIds by favoritesViewModel.favoriteIds.collectAsState()
     val favoriteRecipes = RecipeRepository.recipes.filter { recipe ->
@@ -43,7 +44,8 @@ fun FavoritesScreen(
         favoriteRecipes = favoriteRecipes,
         onRecipeClick = onRecipeClick,
         onRemoveClick = { recipeId -> favoritesViewModel.toggleFavorite(recipeId) },
-        onBackClick = onBack
+        onBackClick = onBack,
+        onExploreRecipesClick = onExploreRecipes
     )
 }
 
@@ -53,12 +55,13 @@ fun FavoritesContent(
     favoriteRecipes: List<Recipe>,
     onRecipeClick: (Int) -> Unit,
     onRemoveClick: (Int) -> Unit,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    onExploreRecipesClick: () -> Unit
 ) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Favorites") },
+                title = { Text("Your Favorites") },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
@@ -70,14 +73,22 @@ fun FavoritesContent(
         if (favoriteRecipes.isEmpty()) {
             EmptyState(
                 message = "No favorite recipes yet.\nTap ♥ on a recipe to save it.",
-                modifier = Modifier.padding(innerPadding)
+                modifier = Modifier.padding(innerPadding),
+                actionText = "Explore Recipes",
+                onAction = onExploreRecipesClick
             )
         } else {
             LazyColumn(
                 modifier = Modifier.padding(innerPadding),
                 contentPadding = PaddingValues(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
+            ) { item {
+                Text(
+                    text = "Recipes you want to cook again",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
                 items(favoriteRecipes) { recipe ->
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         RecipeCard(
@@ -103,7 +114,8 @@ fun FavoritesScreenPreview() {
         favoriteRecipes = RecipeRepository.recipes.take(2),
         onRecipeClick = {},
         onRemoveClick = {},
-        onBackClick = {}
+        onBackClick = {},
+        onExploreRecipesClick = {}
     )
 }
 
@@ -114,6 +126,7 @@ fun FavoritesScreenEmptyPreview() {
         favoriteRecipes = emptyList(),
         onRecipeClick = {},
         onRemoveClick = {},
-        onBackClick = {}
+        onBackClick = {},
+        onExploreRecipesClick ={}
     )
 }

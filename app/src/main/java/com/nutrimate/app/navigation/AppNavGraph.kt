@@ -71,7 +71,8 @@ fun AppNavGraph(onThemeChanged: (Boolean) -> Unit = {}) {
                 onRecipeClick = { recipeId ->
                     navController.navigate(AppRoutes.recipeDetails(recipeId))
                 },
-                onBack = { navController.popBackStack() }
+                onBack = { navController.popBackStack() },
+                onExploreRecipes = {navController.navigate(AppRoutes.RECIPES)}
             )
         }
         composable(AppRoutes.PROFILE) { ProfileScreen(favoriteCount = favoritesViewModel.favoriteIds.collectAsState().value.size, onThemeChanged = onThemeChanged) }
