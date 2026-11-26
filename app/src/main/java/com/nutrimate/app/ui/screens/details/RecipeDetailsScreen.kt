@@ -60,12 +60,11 @@ fun RecipeDetailsScreen(
     LaunchedEffect(recipeId) {
         detailsViewModel.loadRecipe(recipeId)
     }
-
     val uiState by detailsViewModel.uiState.collectAsState()
     val favoriteIds by favoritesViewModel.favoriteIds.collectAsState()
-    val recipe = uiState.recipe
-    when {
-        uiState.isLoading -> {
+
+    when (val state = uiState) {
+        is RecipeDetailsUiState.Loading -> {
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
@@ -74,17 +73,21 @@ fun RecipeDetailsScreen(
             }
         }
 
-        recipe == null -> {
+        is RecipeDetailsUiState.Error -> {
+            EmptyState(message = state.message)
+        }
+        is RecipeDetailsUiState.Empty -> {
             EmptyState(message = "Recipe not found")
         }
-
-        else -> {
+        is RecipeDetailsUiState.Success -> {
+            val recipe = state.recipe
             RecipeDetailsContent(
                 recipe = recipe,
                 isFavorite = recipe.id in favoriteIds,
                 onFavoriteClick = { favoritesViewModel.toggleFavorite(recipe.id) },
                 onBackClick = onBack
-            ) }
+            )
+        }
     }
 }
 @OptIn(ExperimentalMaterial3Api::class)
