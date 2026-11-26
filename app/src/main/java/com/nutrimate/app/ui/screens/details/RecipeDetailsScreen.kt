@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -49,6 +48,7 @@ import androidx.compose.material3.Button
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material3.HorizontalDivider
+import coil3.compose.AsyncImage
 
 @Composable
 fun RecipeDetailsScreen(
@@ -63,9 +63,9 @@ fun RecipeDetailsScreen(
 
     val uiState by detailsViewModel.uiState.collectAsState()
     val favoriteIds by favoritesViewModel.favoriteIds.collectAsState()
-    val recipe = uiState.recipe
-    when {
-        uiState.isLoading -> {
+
+    when (val state = uiState) {
+        is RecipeDetailsUiState.Loading -> {
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
@@ -74,19 +74,30 @@ fun RecipeDetailsScreen(
             }
         }
 
-        recipe == null -> {
+        is RecipeDetailsUiState.Error -> {
+            EmptyState(
+                message = state.message,
+                actionText = "Retry",
+                onAction = { detailsViewModel.retry() }
+            )
+        }
+
+        is RecipeDetailsUiState.Empty -> {
             EmptyState(message = "Recipe not found")
         }
 
-        else -> {
+        is RecipeDetailsUiState.Success -> {
+            val recipe = state.recipe
             RecipeDetailsContent(
                 recipe = recipe,
                 isFavorite = recipe.id in favoriteIds,
                 onFavoriteClick = { favoritesViewModel.toggleFavorite(recipe.id) },
                 onBackClick = onBack
-            ) }
+            )
+        }
     }
 }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RecipeDetailsContent(
@@ -117,14 +128,14 @@ fun RecipeDetailsContent(
                     .navigationBarsPadding()
                     .padding(16.dp)
                     .height(52.dp)
-            ){
+            ) {
                 Icon(
                     imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
                     contentDescription = null
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(if (isFavorite) "Remove from Favorites" else "Add to Favorites")
-        }
+            }
         }
     ) { innerPadding ->
         LazyColumn(
@@ -133,14 +144,24 @@ fun RecipeDetailsContent(
         ) {
             item {
                 val imageRes = getRecipeImage(recipe.id)
-                if (imageRes != null) {
+                val imageModifier = Modifier
+                    .fillMaxWidth()
+                    .height(250.dp)
+                    .clip(MaterialTheme.shapes.large)
+
+                if (recipe.imageUrl.isNotBlank()) {
+                    AsyncImage(
+                        model = recipe.imageUrl,
+                        contentDescription = recipe.name,
+                        modifier = imageModifier,
+                        contentScale = ContentScale.Crop
+                    )
+                    Spacer(modifier = Modifier.height(20.dp))
+                } else if (imageRes != null) {
                     Image(
                         painter = painterResource(id = imageRes),
                         contentDescription = recipe.name,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(250.dp)
-                            .clip(MaterialTheme.shapes.large),
+                        modifier = imageModifier,
                         contentScale = ContentScale.Crop
                     )
                     Spacer(modifier = Modifier.height(20.dp))
@@ -153,21 +174,23 @@ fun RecipeDetailsContent(
                 )
                 Spacer(modifier = Modifier.height(8.dp))
 
-                Row(verticalAlignment = Alignment.CenterVertically){
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         text = recipe.category,
                         style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.primary
                     )
-                    Text(
-                        text = "  •  ",
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Text(
-                        text = "${recipe.cookingTime} min",
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.secondary
-                    )
+                    if (recipe.cookingTime > 0) {
+                        Text(
+                            text = "  •  ",
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Text(
+                            text = "${recipe.cookingTime} min",
+                            style = MaterialTheme.typography.labelLarge,
+                            color = MaterialTheme.colorScheme.secondary
+                        )
+                    }
                 }
                 Spacer(modifier = Modifier.height(12.dp))
 
@@ -206,8 +229,8 @@ fun RecipeDetailsContent(
                 )
                 Spacer(modifier = Modifier.height(8.dp))
             }
-            itemsIndexed(recipe.instructions) { index, step ->
-                InstructionStep(stepNumber = index + 1, text = step)
+            items(recipe.instructions.size) { index ->
+                InstructionStep(stepNumber = index + 1, text = recipe.instructions[index])
             }
         }
     }
@@ -226,7 +249,7 @@ fun RecipeDetailsScreenPreview() {
 
 @Preview(showBackground = true)
 @Composable
-fun RecipeDetailsFavoritePreview(){
+fun RecipeDetailsFavoritePreview() {
     RecipeDetailsContent(
         recipe = RecipeRepository.recipes.first(),
         isFavorite = true,

@@ -36,7 +36,6 @@ data class MealDto(
     val strIngredient18: String? = null,
     val strIngredient19: String? = null,
     val strIngredient20: String? = null,
-
     val strMeasure1: String? = null,
     val strMeasure2: String? = null,
     val strMeasure3: String? = null,
