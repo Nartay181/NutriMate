@@ -7,6 +7,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -14,6 +15,11 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
 import com.nutrimate.app.data.remote.dto.getIngredients
+import com.nutrimate.app.data.local.AppDatabase
+import com.nutrimate.app.data.repository.FavoritesRepository
+import com.nutrimate.app.data.remote.mapper.toRecipe
+import androidx.compose.ui.platform.LocalContext
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -23,6 +29,10 @@ fun MealDetailsScreen(
     detailsViewModel: MealDetailsViewModel = viewModel()
 ) {
     val uiState by detailsViewModel.uiState.collectAsState()
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val favoritesRepository = remember { FavoritesRepository(AppDatabase.getDatabase(context).favoriteRecipeDao()) }
+    val favorites by favoritesRepository.favorites.collectAsState(initial = emptyList())
 
     LaunchedEffect(mealId) {
         detailsViewModel.loadMeal(mealId)
@@ -110,6 +120,16 @@ fun MealDetailsScreen(
                             text = formatInstructions(meal.instructions),
                             style = MaterialTheme.typography.bodyLarge
                         )
+
+                        val saved = favorites.any { it.mealId == meal.id }
+                        Button(onClick = {
+                            scope.launch {
+                                if (saved) favoritesRepository.removeFavorite(meal.id)
+                                else favoritesRepository.addFavorite(meal.toRecipe())
+                            }
+                        }, modifier = Modifier.fillMaxWidth()) {
+                            Text(if (saved) "Remove from Favorites" else "Save to Favorites")
+                        }
                     }
                 }
                 is MealDetailsUiState.Error -> {
