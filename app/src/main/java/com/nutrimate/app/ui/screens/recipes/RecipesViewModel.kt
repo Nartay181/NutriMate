@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import java.io.IOException
+import kotlinx.coroutines.CancellationException
 
 class RecipesViewModel : ViewModel() {
     private var searchJob: Job? = null
@@ -85,6 +86,12 @@ class RecipesViewModel : ViewModel() {
             } catch (e: HttpException) {
                 _uiState.value = RecipesUiState.Error(
                     "Server error: ${e.code()}"
+                )
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                _uiState.value = RecipesUiState.Error(
+                    "Something went wrong. Please try again."
                 )
             }
         }
