@@ -60,6 +60,7 @@ fun RecipeDetailsScreen(
     LaunchedEffect(recipeId) {
         detailsViewModel.loadRecipe(recipeId)
     }
+
     val uiState by detailsViewModel.uiState.collectAsState()
     val favoriteIds by favoritesViewModel.favoriteIds.collectAsState()
 
@@ -74,17 +75,23 @@ fun RecipeDetailsScreen(
         }
 
         is RecipeDetailsUiState.Error -> {
-            EmptyState(message = state.message)
+            EmptyState(
+                message = state.message,
+                actionText = "Retry",
+                onAction = { detailsViewModel.retry() }
+            )
         }
+
         is RecipeDetailsUiState.Empty -> {
             EmptyState(message = "Recipe not found")
         }
+
         is RecipeDetailsUiState.Success -> {
             val recipe = state.recipe
             RecipeDetailsContent(
                 recipe = recipe,
                 isFavorite = recipe.id in favoriteIds,
-                onFavoriteClick = { favoritesViewModel.toggleFavorite(recipe.id) },
+                onFavoriteClick = { favoritesViewModel.toggleFavorite(recipe) },
                 onBackClick = onBack
             )
         }

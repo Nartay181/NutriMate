@@ -22,16 +22,19 @@ sealed interface RecipeDetailsUiState {
 class RecipeDetailsViewModel : ViewModel() {
 
     private val mealRepository = MealRepository()
-
     private val _uiState = MutableStateFlow<RecipeDetailsUiState>(RecipeDetailsUiState.Loading)
     val uiState: StateFlow<RecipeDetailsUiState> = _uiState.asStateFlow()
 
+    private var lastRecipeId: Int? = null
+
     fun loadRecipe(recipeId: Int) {
+        lastRecipeId = recipeId
         val localRecipe = RecipeRepository.getRecipeById(recipeId)
         if (localRecipe != null) {
             _uiState.value = RecipeDetailsUiState.Success(localRecipe)
             return
         }
+
         viewModelScope.launch {
             _uiState.value = RecipeDetailsUiState.Loading
             try {
@@ -41,10 +44,15 @@ class RecipeDetailsViewModel : ViewModel() {
                 } else {
                     RecipeDetailsUiState.Success(meal.toRecipe())
                 }
-            }catch (e: IOException) { _uiState.value = RecipeDetailsUiState.Error("No internet connection")
-            }catch (e: HttpException) {
+            } catch (e: IOException) {
+                _uiState.value = RecipeDetailsUiState.Error("No internet connection")
+            } catch (e: HttpException) {
                 _uiState.value = RecipeDetailsUiState.Error("Server error: ${e.code()}")
             }
         }
+    }
+
+    fun retry() {
+        lastRecipeId?.let { id -> loadRecipe(id) }
     }
 }
