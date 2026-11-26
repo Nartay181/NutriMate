@@ -1,132 +1,64 @@
 package com.nutrimate.app.ui.screens.favorites
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.runtime.Composable
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.nutrimate.app.data.model.Recipe
-import com.nutrimate.app.data.repository.RecipeRepository
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.nutrimate.app.data.local.FavoriteRecipeEntity
 import com.nutrimate.app.ui.components.EmptyState
-import com.nutrimate.app.ui.components.FavoriteButton
-import com.nutrimate.app.ui.components.RecipeCard
-import com.nutrimate.app.viewmodel.SharedFavoritesViewModel
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-@Composable
-fun FavoritesScreen(
-    favoritesViewModel: SharedFavoritesViewModel,
-    onRecipeClick: (Int) -> Unit,
-    onBack: () -> Unit,
-    onExploreRecipes: () -> Unit
-) {
-    val favoriteIds by favoritesViewModel.favoriteIds.collectAsState()
-    val favoriteRecipes = RecipeRepository.recipes.filter { recipe ->
-        recipe.id in favoriteIds
-    }
-
-    FavoritesContent(
-        favoriteRecipes = favoriteRecipes,
-        onRecipeClick = onRecipeClick,
-        onRemoveClick = { recipeId -> favoritesViewModel.toggleFavorite(recipeId) },
-        onBackClick = onBack,
-        onExploreRecipesClick = onExploreRecipes
-    )
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FavoritesContent(
-    favoriteRecipes: List<Recipe>,
-    onRecipeClick: (Int) -> Unit,
-    onRemoveClick: (Int) -> Unit,
-    onBackClick: () -> Unit,
-    onExploreRecipesClick: () -> Unit
+fun FavoritesScreen(
+    onRecipeClick: (String) -> Unit,
+    onBack: () -> Unit,
+    onExploreRecipes: () -> Unit,
+    favoritesViewModel: FavoritesViewModel = viewModel()
 ) {
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Your Favorites") },
-                navigationIcon = {
-                    IconButton(onClick = onBackClick) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                    }
-                }
-            )
-        }
-    ) { innerPadding ->
-        if (favoriteRecipes.isEmpty()) {
-            EmptyState(
-                message = "No favorite recipes yet.\nTap ♥ on a recipe to save it.",
-                modifier = Modifier.padding(innerPadding),
-                actionText = "Explore Recipes",
-                onAction = onExploreRecipesClick
-            )
+    val favorites by favoritesViewModel.favorites.collectAsStateWithLifecycle()
+    Scaffold(topBar = {
+        TopAppBar(title = { Text("Your favorites") }, navigationIcon = { IconButton(onBack) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back") } })
+    }) { padding ->
+        if (favorites.isEmpty()) {
+            EmptyState("Recipes you want to cook again", title = "Your favorites are empty", actionText = "Explore recipes", onAction = onExploreRecipes, modifier = Modifier.padding(padding))
         } else {
-            LazyColumn(
-                modifier = Modifier.padding(innerPadding),
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) { item {
-                Text(
-                    text = "Recipes you want to cook again",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-                items(favoriteRecipes) { recipe ->
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        RecipeCard(
-                            recipe = recipe,
-                            onClick = { onRecipeClick(recipe.id) },
-                            modifier = Modifier.weight(1f)
-                        )
-                        FavoriteButton(
-                            isFavorite = true,
-                            onClick = { onRemoveClick(recipe.id) }
-                        )
-                    }
+            LazyColumn(Modifier.padding(padding), contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                items(favorites, key = { it.mealId }) { favorite ->
+                    FavoriteRow(favorite, { onRecipeClick(favorite.mealId) }, { favoritesViewModel.removeFavorite(favorite.mealId) }) { note, rating -> favoritesViewModel.updateFavorite(favorite, note, rating) }
                 }
             }
         }
     }
 }
 
-@Preview(showBackground = true)
 @Composable
-fun FavoritesScreenPreview() {
-    FavoritesContent(
-        favoriteRecipes = RecipeRepository.recipes.take(2),
-        onRecipeClick = {},
-        onRemoveClick = {},
-        onBackClick = {},
-        onExploreRecipesClick = {}
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun FavoritesScreenEmptyPreview() {
-    FavoritesContent(
-        favoriteRecipes = emptyList(),
-        onRecipeClick = {},
-        onRemoveClick = {},
-        onBackClick = {},
-        onExploreRecipesClick ={}
-    )
+private fun FavoriteRow(favorite: FavoriteRecipeEntity, onOpen: () -> Unit, onDelete: () -> Unit, onSave: (String, Int) -> Unit) {
+    var editing by remember { mutableStateOf(false) }
+    Card(onClick = onOpen, modifier = Modifier.fillMaxWidth()) {
+        Column(Modifier.padding(16.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Column(Modifier.weight(1f)) { Text(favorite.name, style = MaterialTheme.typography.titleMedium); Text(favorite.category, style = MaterialTheme.typography.bodySmall) }
+                IconButton(onDelete) { Icon(Icons.Default.Delete, "Remove") }
+            }
+            if (favorite.rating > 0) Text("Rating: ${favorite.rating}/5")
+            if (favorite.note.isNotBlank()) Text(favorite.note, style = MaterialTheme.typography.bodyMedium)
+            TextButton({ editing = true }) { Text("Edit note and rating") }
+        }
+    }
+    if (editing) {
+        var note by remember { mutableStateOf(favorite.note) }
+        var rating by remember { mutableStateOf(favorite.rating.coerceIn(1, 5)) }
+        AlertDialog(onDismissRequest = { editing = false }, title = { Text("Personal details") }, text = {
+            Column { OutlinedTextField(note, { note = it }, label = { Text("Note") }); Text("Rating: $rating / 5"); Slider(rating.toFloat(), { rating = it.toInt().coerceIn(1, 5) }, valueRange = 1f..5f, steps = 3) }
+        }, confirmButton = { TextButton({ onSave(note, rating); editing = false }) { Text("Save") } }, dismissButton = { TextButton({ editing = false }) { Text("Cancel") } })
+    }
 }
