@@ -16,6 +16,7 @@ import com.nutrimate.app.ui.screens.recipes.RecipesScreen
 import com.nutrimate.app.viewmodel.SharedFavoritesViewModel
 import com.nutrimate.app.ui.screens.profile.ProfileScreen
 import com.nutrimate.app.ui.screens.settings.SettingsScreen
+import com.nutrimate.app.ui.screens.favorites.FavoritesViewModel
 import com.nutrimate.app.ui.components.NutriMateBottomBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.collectAsState
@@ -27,6 +28,8 @@ import androidx.compose.ui.Modifier
 fun AppNavGraph(onThemeChanged: (Boolean) -> Unit = {}) {
     val navController = rememberNavController()
     val favoritesViewModel: SharedFavoritesViewModel = viewModel()
+    val roomFavoritesViewModel: FavoritesViewModel = viewModel()
+    val savedFavorites by roomFavoritesViewModel.favorites.collectAsState()
     val currentEntry by navController.currentBackStackEntryAsState()
     val currentRoute = currentEntry?.destination?.route
     val showBottomBar = currentRoute in listOf(AppRoutes.HOME, AppRoutes.RECIPES, AppRoutes.RECIPES_WITH_CATEGORY, AppRoutes.FAVORITES, AppRoutes.PROFILE)
@@ -76,7 +79,7 @@ fun AppNavGraph(onThemeChanged: (Boolean) -> Unit = {}) {
                 onExploreRecipes = {navController.navigate(AppRoutes.RECIPES)}
             )
         }
-        composable(AppRoutes.PROFILE) { ProfileScreen(favoriteCount = favoritesViewModel.favoriteIds.collectAsState().value.size, onThemeChanged = onThemeChanged) }
+        composable(AppRoutes.PROFILE) { ProfileScreen(favoriteCount = savedFavorites.size, onThemeChanged = onThemeChanged) }
         composable(AppRoutes.SETTINGS) { SettingsScreen(onBack = { navController.popBackStack() }) }
         composable(
             route = AppRoutes.RECIPE_DETAILS,
