@@ -31,6 +31,7 @@ import androidx.compose.ui.focus.focusModifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.nutrimate.app.ui.components.MealCard
 import com.nutrimate.app.ui.components.RecipeCard
 import com.nutrimate.app.ui.theme.NutriMateTheme
 
@@ -104,13 +105,13 @@ fun RecipesScreen(
             }
 
             is RecipesUiState.Success -> {
-                LazyColumn(modifier = Modifier.fillMaxWidth()) {
+                LazyColumn(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentPadding = PaddingValues(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
                     items(state.meals) {meal ->
-                        Text(
-                            text = meal.name,
-                            modifier = Modifier.padding(16.dp),
-                            style = MaterialTheme.typography.titleMedium
-                        )
+                        MealCard(meal = meal)
                     }
                 }
             }
