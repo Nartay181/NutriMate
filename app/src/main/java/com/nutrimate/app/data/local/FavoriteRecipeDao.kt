@@ -9,9 +9,9 @@ import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-interface FavoriteDao {
+interface FavoriteRecipeDao {
 
-    // READ:
+    // READ
     @Query("SELECT * FROM favorite_recipes ORDER BY savedAt DESC")
     fun getAllFavorites(): Flow<List<FavoriteRecipeEntity>>
 
@@ -27,7 +27,7 @@ interface FavoriteDao {
     @Delete
     suspend fun deleteFavorite(favorite: FavoriteRecipeEntity)
 
-    // DELETE by id
-    @Query("DELETE FROM favorite_recipes WHERE id = :recipeId")
-    suspend fun deleteFavoriteById(recipeId: Int)
+    // DELETE by mealId
+    @Query("DELETE FROM favorite_recipes WHERE mealId = :mealId")
+    suspend fun deleteFavoriteById(mealId: String)
 }

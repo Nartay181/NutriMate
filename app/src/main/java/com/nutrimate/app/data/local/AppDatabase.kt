@@ -12,9 +12,7 @@ import androidx.room.RoomDatabase
 )
 abstract class AppDatabase : RoomDatabase() {
 
-    abstract fun favoriteDao(): FavoriteDao
-
-    companion object {
+    abstract fun favoriteRecipeDao(): FavoriteRecipeDao    companion object {
         @Volatile
         private var INSTANCE: AppDatabase? = null
 
