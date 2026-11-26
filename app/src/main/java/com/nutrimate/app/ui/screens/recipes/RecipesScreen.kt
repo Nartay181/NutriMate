@@ -1,6 +1,7 @@
 package com.nutrimate.app.ui.screens.recipes
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -8,8 +9,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.FilterChip
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -20,31 +25,26 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.nutrimate.app.data.repository.RecipeRepository
-import com.nutrimate.app.ui.components.RecipeCard
+import com.nutrimate.app.ui.components.MealCard
 import com.nutrimate.app.ui.theme.NutriMateTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RecipesScreen(
-    initialCategory: String = "All",
-    onRecipeClick: (Int) -> Unit,
+    onRecipeClick: (String) -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
     recipesViewModel: RecipesViewModel = viewModel()
 ) {
-    LaunchedEffect(initialCategory) { recipesViewModel.onCategoryChange(initialCategory) }
     val searchQuery by recipesViewModel.searchQuery.collectAsState()
     val selectedCategory by recipesViewModel.selectedCategory.collectAsState()
-    val filteredRecipes by recipesViewModel.filteredRecipes.collectAsState()
-    val categories = recipesViewModel.categories
+    val uiState by recipesViewModel.uiState.collectAsState()
+    val categories by recipesViewModel.categories.collectAsState()
     Scaffold(
         topBar = {
             TopAppBar(
@@ -90,29 +90,71 @@ fun RecipesScreen(
             }
         }
 
-        if (filteredRecipes.isEmpty()) {
-            Text(
-                text = "No recipes found",
-                modifier = Modifier.padding(16.dp),
-                style = MaterialTheme.typography.bodyLarge
-            )
-        } else {
-            LazyColumn(
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                items(filteredRecipes) {recipe ->
-                    RecipeCard(
-                        recipe = recipe,
-                        onClick = {
-                            onRecipeClick(recipe.id)
-                        },
-                        modifier = Modifier.padding(
-                            start = 16.dp,
-                            end = 16.dp,
-                            bottom = 8.dp
-                        )
-                    )
+        when (val state = uiState) {
+            is RecipesUiState.Loading -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
                 }
+            }
+
+            is RecipesUiState.Success -> {
+                LazyColumn(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentPadding = PaddingValues(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    items(state.meals) {meal ->
+                        MealCard(
+                            meal = meal,
+                            selectedCategory = selectedCategory,
+                            onClick = {
+                                onRecipeClick(meal.id)
+                            }
+                        )
+                    }
+                }
+            }
+
+            is RecipesUiState.Error -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Text(
+                            text = state.message,
+                            color = MaterialTheme.colorScheme.error
+                        )
+
+                        Button(
+                            onClick = {
+                                recipesViewModel.loadRecipes()
+                            }
+                        ) {
+                            Text(
+                                text = "Retry"
+                            )
+                        }
+                    }
+                }
+            }
+
+            is RecipesUiState.Empty -> {
+                Text(
+                    text = "No recipes found",
+                    modifier = Modifier.padding(16.dp),
+                    style = MaterialTheme.typography.bodyLarge
+                )
             }
         }
         }

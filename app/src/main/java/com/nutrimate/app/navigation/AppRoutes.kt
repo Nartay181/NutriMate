@@ -8,9 +8,13 @@ object AppRoutes {
     const val PROFILE = "profile"
     const val SETTINGS = "settings"
     const val RECIPE_DETAILS = "recipe_details/{recipeId}"
+    const val MEAL_DETAILS = "meal_details/{mealId}"
 
     fun recipeDetails(recipeId: Int): String =
         "recipe_details/$recipeId"
 
     fun recipes(category: String): String = "recipes?category=${android.net.Uri.encode(category)}"
+
+    fun mealDetails(mealId: String): String =
+        "meal_details/$mealId"
 }
