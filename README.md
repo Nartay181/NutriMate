@@ -15,6 +15,8 @@ NutriMate is an Android recipe and nutrition application for browsing local reci
 - Material 3 styling and back navigation
 - Shared bottom navigation across Home, Recipes, Favorites, and Profile
 - Local Profile with editable name, statistics, and theme toggle
+- DataStore-backed theme preference that survives app restarts
+- Retrofit, Coil, and Room dependencies prepared for the API and Favorites modules
 
 ## Screens
 
@@ -23,6 +25,8 @@ Home, Recipes, Recipe Details, Favorites, and Profile. Recipe Details intentiona
 ## Architecture
 
 The application uses Kotlin, Jetpack Compose, MVVM, StateFlow, and Navigation Compose.
+
+Requirements 8/9 extend the data flow with Retrofit for TheMealDB, Room for persistent Favorites, Coil for remote images, Kotlin Coroutines for asynchronous work, and DataStore for the theme preference.
 
 ```text
 MainActivity
@@ -38,7 +42,17 @@ ViewModels and StateFlow
 Local RecipeRepository
 ```
 
-Shared recipe data is defined by the `Recipe` model and provided by the local `RecipeRepository`. Screen UI is separated from screen state and navigation logic.
+Shared recipe data is defined by the `Recipe` model and provided by repositories. Screen UI is separated from screen state and navigation logic. The planned data flow is:
+
+```text
+Compose screen -> ViewModel + StateFlow -> Repository
+                                      ↙          ↘
+                              Retrofit API       Room Favorites
+                                      ↘
+                                      Coil images
+
+DataStore -> ThemeViewModel -> Material 3 theme
+```
 
 ## Technologies
 
