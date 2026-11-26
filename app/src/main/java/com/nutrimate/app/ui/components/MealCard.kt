@@ -18,10 +18,14 @@ import com.nutrimate.app.data.remote.dto.MealDto
 @Composable
 fun MealCard(
     meal: MealDto,
+    onClick:() -> Unit,
     selectedCategory: String = "All",
     modifier: Modifier = Modifier
 ) {
-    Card(modifier = modifier.fillMaxWidth()) {
+    Card(
+        onClick = onClick,
+        modifier = modifier.fillMaxWidth()
+    ) {
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             AsyncImage(
                 model = meal.thumbnailUrl,

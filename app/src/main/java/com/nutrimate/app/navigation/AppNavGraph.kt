@@ -1,6 +1,7 @@
 package com.nutrimate.app.navigation
 
 import androidx.compose.runtime.Composable
+import com.nutrimate.app.ui.screens.details.MealDetailsScreen
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -33,8 +34,8 @@ fun AppNavGraph() {
         }
         composable(AppRoutes.RECIPES) {
             RecipesScreen(
-                onRecipeClick = { recipeId ->
-                    navController.navigate(AppRoutes.recipeDetails(recipeId))
+                onRecipeClick = { mealId ->
+                    navController.navigate(AppRoutes.mealDetails(mealId))
                 },
                 onBack = { navController.popBackStack() }
             )
@@ -64,6 +65,27 @@ fun AppNavGraph() {
                     recipeId = recipeId,
                     favoritesViewModel = favoritesViewModel,
                     onBack = { navController.popBackStack() }
+                )
+            }
+        }
+        composable(
+            route = AppRoutes.MEAL_DETAILS,
+            arguments = listOf(
+                navArgument("mealId") {
+                    type = NavType.StringType
+                }
+            )
+        ) { backStackEntry ->
+            val mealId = backStackEntry.arguments?.getString("mealId")
+
+            if (mealId.isNullOrBlank()) {
+                navController.popBackStack()
+            } else {
+                MealDetailsScreen(
+                    mealId = mealId,
+                    onBack = {
+                        navController.popBackStack()
+                    }
                 )
             }
         }

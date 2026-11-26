@@ -36,7 +36,7 @@ import com.nutrimate.app.ui.theme.NutriMateTheme
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RecipesScreen(
-    onRecipeClick: (Int) -> Unit,
+    onRecipeClick: (String) -> Unit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
     recipesViewModel: RecipesViewModel = viewModel()
@@ -111,7 +111,10 @@ fun RecipesScreen(
                     items(state.meals) {meal ->
                         MealCard(
                             meal = meal,
-                            selectedCategory = selectedCategory
+                            selectedCategory = selectedCategory,
+                            onClick = {
+                                onRecipeClick(meal.id)
+                            }
                         )
                     }
                 }
