@@ -14,6 +14,7 @@ import com.nutrimate.app.ui.screens.favorites.FavoritesScreen
 import com.nutrimate.app.ui.screens.recipes.RecipesScreen
 import com.nutrimate.app.viewmodel.SharedFavoritesViewModel
 import com.nutrimate.app.ui.screens.profile.ProfileScreen
+import com.nutrimate.app.ui.screens.settings.SettingsScreen
 import com.nutrimate.app.ui.components.NutriMateBottomBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.collectAsState
@@ -48,6 +49,7 @@ fun AppNavGraph(onThemeChanged: (Boolean) -> Unit = {}) {
             HomeScreen(
                 onOpenRecipes = { category -> navController.navigate(AppRoutes.recipes(category ?: "All")) },
                 onOpenFavorites = { navController.navigate(AppRoutes.FAVORITES) },
+                onOpenSettings = { navController.navigate(AppRoutes.SETTINGS) },
                 onOpenRecipe = { recipeId ->
                     navController.navigate(AppRoutes.recipeDetails(recipeId))
                 }
@@ -76,6 +78,7 @@ fun AppNavGraph(onThemeChanged: (Boolean) -> Unit = {}) {
             )
         }
         composable(AppRoutes.PROFILE) { ProfileScreen(favoriteCount = favoritesViewModel.favoriteIds.collectAsState().value.size, onThemeChanged = onThemeChanged) }
+        composable(AppRoutes.SETTINGS) { SettingsScreen(onBack = { navController.popBackStack() }) }
         composable(
             route = AppRoutes.RECIPE_DETAILS,
             arguments = listOf(navArgument("recipeId") { type = NavType.IntType })

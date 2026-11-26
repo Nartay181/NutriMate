@@ -6,6 +6,7 @@ object AppRoutes {
     const val RECIPES_WITH_CATEGORY = "recipes?category={category}"
     const val FAVORITES = "favorites"
     const val PROFILE = "profile"
+    const val SETTINGS = "settings"
     const val RECIPE_DETAILS = "recipe_details/{recipeId}"
 
     fun recipeDetails(recipeId: Int): String =

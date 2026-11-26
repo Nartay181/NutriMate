@@ -17,11 +17,14 @@ import com.nutrimate.app.ui.components.RecipeCard
 import com.nutrimate.app.ui.components.SectionTitle
 
 @Composable
-fun HomeScreen(onOpenRecipes: (String?) -> Unit, onOpenFavorites: () -> Unit, onOpenRecipe: (Int) -> Unit, viewModel: HomeViewModel = viewModel()) {
+fun HomeScreen(onOpenRecipes: (String?) -> Unit, onOpenFavorites: () -> Unit, onOpenSettings: () -> Unit = {}, onOpenRecipe: (Int) -> Unit, viewModel: HomeViewModel = viewModel()) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 20.dp)) {
         Spacer(Modifier.height(24.dp))
-        Text(state.welcomeMessage, style = MaterialTheme.typography.headlineMedium)
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            Text(state.welcomeMessage, style = MaterialTheme.typography.headlineMedium)
+            TextButton(onClick = onOpenSettings) { Text("Settings") }
+        }
         Text("What are you in the mood to cook today?", style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
         Card(Modifier.fillMaxWidth().padding(top = 24.dp), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer), shape = MaterialTheme.shapes.extraLarge) {
             Column(Modifier.padding(20.dp)) {
