@@ -16,7 +16,11 @@ import coil3.compose.AsyncImage
 import com.nutrimate.app.data.remote.dto.MealDto
 
 @Composable
-fun MealCard(meal: MealDto, modifier: Modifier = Modifier) {
+fun MealCard(
+    meal: MealDto,
+    selectedCategory: String = "All",
+    modifier: Modifier = Modifier
+) {
     Card(modifier = modifier.fillMaxWidth()) {
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             AsyncImage(
@@ -35,7 +39,9 @@ fun MealCard(meal: MealDto, modifier: Modifier = Modifier) {
             )
 
             Text(
-                text = meal.category ?: "Unknown category",
+                text = meal.category
+                    ?: selectedCategory.takeIf { it != "All"}
+                    ?: "Unknown category",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(

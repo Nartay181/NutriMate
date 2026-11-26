@@ -111,7 +111,10 @@ fun RecipesScreen(
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     items(state.meals) {meal ->
-                        MealCard(meal = meal)
+                        MealCard(
+                            meal = meal,
+                            selectedCategory = selectedCategory
+                        )
                     }
                 }
             }
